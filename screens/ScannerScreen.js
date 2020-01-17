@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { Text, SafeAreaView, StyleSheet, Button } from 'react-native';
+import { Text, SafeAreaView, StyleSheet, View, Button } from 'react-native';
 import { BarCodeScanner } from 'expo-barcode-scanner';
 import * as SQLite from 'expo-sqlite';
+import Colors from '../constants/Colors';
+
+const qrDB = SQLite.openDatabase('qrDB3');
 
 export default function ScannerScreen() {
   const [hasPermission, setHasPermission] = useState(null);
   const [scanned, setScanned] = useState(false);
-  const qrDB = SQLite.openDatabase('qrDB2');
 
   qrDB.transaction(tx => {
     tx.executeSql(
@@ -71,7 +73,9 @@ function validURL(str) {
       />
   
       {scanned && (
-        <Button title={'Tap to Scan Again'} onPress={() => setScanned(false)} />
+        <View style={styles.scanAgainButtonContainer}>
+          <Button color={'white'} title={'Tap to Scan Again'} onPress={() => setScanned(false)} />
+        </View>
       )}
     </SafeAreaView>
   );
@@ -86,5 +90,9 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'column',
     justifyContent: 'flex-end',
+  },
+  scanAgainButtonContainer: {
+    backgroundColor: Colors.tabIconSelected,
+    height: 40,
   }
 });

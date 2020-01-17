@@ -14,10 +14,10 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-navigation';
 
-const trashIcon = require("../assets/images/trash-icon.png")
-const qrDB = SQLite.openDatabase('qrDB2');
-
 YellowBox.ignoreWarnings(['Failed child context type']);
+
+const trashIcon = require("../assets/images/trash-icon.png")
+const qrDB = SQLite.openDatabase('qrDB');
 
 export default function HomeScreen() {
   const [qrCodes, setQRCodes] = useState([]);
@@ -65,10 +65,13 @@ export default function HomeScreen() {
             _fetchQRCodes()
           }}
         />
-      <FlatList
+      {qrCodes.length > 0 ?
+       <FlatList
           data={Object.values(qrCodes)} 
           renderItem={item => _renderItem(item)}
-          /> 
+          />  
+        : 
+        <Text style={styles.emptyDBText}>You do not have any QR Codes saved</Text>}  
     </SafeAreaView>
   );
 }
@@ -115,6 +118,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
+  },
+  emptyDBText: {
+    textAlign: 'center',
+    marginTop: 100,
+    marginLeft: 20,
+    marginRight: 20,
+    fontSize: 25
   },
   itemContainter: {
     flex: 1, 
