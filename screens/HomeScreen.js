@@ -1,4 +1,5 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useContext, useEffect} from 'react';
+import { NavigationContext } from 'react-navigation';
 import * as SQLite from 'expo-sqlite';
 
 import {
@@ -14,6 +15,7 @@ import { SafeAreaView } from 'react-navigation';
 export default function HomeScreen() {
   const [qrCodes, setQRCodes] = useState([]);
   const qrDB = SQLite.openDatabase('qrDB');
+  const navigation = useContext(NavigationContext);
 
   useEffect(() => {
     (async () => {
@@ -40,6 +42,7 @@ export default function HomeScreen() {
     return (
       <CodeListItem
         item={item.item}
+        navigation={navigation}
       />
     );
   }
@@ -54,11 +57,28 @@ export default function HomeScreen() {
   );
 }
 
+//TODO Navigation not working
 class CodeListItem extends React.PureComponent { 
 
   render() {
+    const openWebview = () => {
+      /*alert("yo") 
+      const navigateAction = NavigationActions.navigate({
+        routeName: 'WebView',
+        params: {url: this.props.item.url},
+      
+        // navigate can have a nested navigate action that will be run inside the child router
+        //action: NavigationActions.navigate({ routeName: 'SubProfileRoute' }),
+      });
+  
+      this.props.navigation.dispatch(navigateAction)*/
+      this.props.navigation.navigate('WebView', {
+         url: this.props.item.url
+      })
+    }
+
    return (
-    <TouchableOpacity style={styles.itemContainter}>
+    <TouchableOpacity onPress={() => openWebview()} style={styles.itemContainter}>
       <View style={styles.idContainer}>
    <Text style={styles.idText}>{this.props.item.id}</Text>
       </View>
