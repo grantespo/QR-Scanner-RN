@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Text, View, StyleSheet, Button } from 'react-native';
+import { Text, SafeAreaView, StyleSheet, Button } from 'react-native';
 import { BarCodeScanner } from 'expo-barcode-scanner';
 import * as SQLite from 'expo-sqlite';
 
@@ -15,20 +15,14 @@ export default function ScannerScreen() {
   });
 
 add = (url) => {
-  // is text empty?
   if (url === null || url === "") {
     alert("Unable to add this QR Code to database because there was no URL associated with it.")
   } else {
     qrDB.transaction(
       tx => {
         tx.executeSql("insert into items (url) values (?)", [url], () => {
-          alert("Your code has been added!")
+          alert("Your code has been added!");
         });
-        /*tx.executeSql("select * from items", [], (_, { rows }) => 
-          {
-            console.log(JSON.stringify(rows))
-          }
-        );*/
       }
     );
   }
@@ -43,7 +37,7 @@ add = (url) => {
   
   const handleBarCodeScanned = ({ data }) => {
     setScanned(true);
-    add(data)
+    add(data);
   };
   
   if (hasPermission === null) {
@@ -55,12 +49,8 @@ add = (url) => {
 
   
   return (
-    <View
-      style={{
-        flex: 1,
-        flexDirection: 'column',
-        justifyContent: 'flex-end',
-      }}>
+    <SafeAreaView
+      style={styles.container}>
       <BarCodeScanner
         onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
         style={StyleSheet.absoluteFillObject}
@@ -69,10 +59,18 @@ add = (url) => {
       {scanned && (
         <Button title={'Tap to Scan Again'} onPress={() => setScanned(false)} />
       )}
-    </View>
+    </SafeAreaView>
   );
 }
 
 ScannerScreen.navigationOptions = {
   title: 'QR Code Scanner',
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    flexDirection: 'column',
+    justifyContent: 'flex-end',
+  }
+});
