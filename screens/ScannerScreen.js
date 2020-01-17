@@ -4,7 +4,7 @@ import { BarCodeScanner } from 'expo-barcode-scanner';
 import * as SQLite from 'expo-sqlite';
 import Colors from '../constants/Colors';
 
-const qrDB = SQLite.openDatabase('qrDB3');
+const qrDB = SQLite.openDatabase('qrDB');
 
 export default function ScannerScreen() {
   const [hasPermission, setHasPermission] = useState(null);
