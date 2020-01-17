@@ -1,9 +1,11 @@
 import React, {useState, useContext, useEffect} from 'react';
 import { NavigationContext } from 'react-navigation';
+import { NavigationEvents } from "react-navigation";
 import * as SQLite from 'expo-sqlite';
 
 import {
   FlatList,
+  YellowBox,
   StyleSheet,
   Image,
   Text,
@@ -12,12 +14,20 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-navigation';
 
+const trashIcon = require("../assets/images/trash-icon.png")
+const qrDB = SQLite.openDatabase('qrDB2');
+
+YellowBox.ignoreWarnings(['Failed child context type']);
+
 export default function HomeScreen() {
   const [qrCodes, setQRCodes] = useState([]);
-  const qrDB = SQLite.openDatabase('qrDB');
   const navigation = useContext(NavigationContext);
 
   useEffect(() => {
+    _fetchQRCodes()
+  }, []);
+
+  const _fetchQRCodes = () => {
     (async () => {
       qrDB.transaction(tx => {
         tx.executeSql(
@@ -36,11 +46,12 @@ export default function HomeScreen() {
             );
       });
     })();
-  }, []);
+  }
 
    const _renderItem = (item) => {
     return (
       <CodeListItem
+        _fetchQRCodes={_fetchQRCodes()}
         item={item.item}
         navigation={navigation}
       />
@@ -49,6 +60,11 @@ export default function HomeScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
+      <NavigationEvents
+          onWillFocus={() => {
+            _fetchQRCodes()
+          }}
+        />
       <FlatList
           data={Object.values(qrCodes)} 
           renderItem={item => _renderItem(item)}
@@ -57,24 +73,23 @@ export default function HomeScreen() {
   );
 }
 
-//TODO Navigation not working
 class CodeListItem extends React.PureComponent { 
 
   render() {
     const openWebview = () => {
-      /*alert("yo") 
-      const navigateAction = NavigationActions.navigate({
-        routeName: 'WebView',
-        params: {url: this.props.item.url},
-      
-        // navigate can have a nested navigate action that will be run inside the child router
-        //action: NavigationActions.navigate({ routeName: 'SubProfileRoute' }),
-      });
-  
-      this.props.navigation.dispatch(navigateAction)*/
       this.props.navigation.navigate('WebView', {
          url: this.props.item.url
       })
+    }
+
+    const deleteItem = () => {
+      qrDB.transaction(
+        tx => {
+          tx.executeSql(`delete from items where id = ?;`, [this.props.item.id]);
+        },
+        null,
+        this.props._fetchQRCodes
+      )
     }
 
    return (
@@ -85,8 +100,8 @@ class CodeListItem extends React.PureComponent {
       <View style={styles.itemURLContainer}>
    <Text style={styles.URLText}>{this.props.item.url}</Text>
       </View>
-      <TouchableOpacity style={styles.itemDeleteContainer}>
-        <Image style={styles.deleteImage}></Image>
+      <TouchableOpacity onPress={() => deleteItem()} style={styles.itemDeleteContainer}>
+        <Image source={trashIcon} style={styles.deleteImage}></Image>
       </TouchableOpacity>
     </TouchableOpacity>
     )}
@@ -131,8 +146,7 @@ const styles = StyleSheet.create({
     alignContent: 'center'
   },
   deleteImage: {
-    width: 25,
-    height: 25,
-    backgroundColor: 'black',
+    width: 40,
+    height: 40
   },
 });

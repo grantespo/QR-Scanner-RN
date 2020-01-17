@@ -6,7 +6,7 @@ import * as SQLite from 'expo-sqlite';
 export default function ScannerScreen() {
   const [hasPermission, setHasPermission] = useState(null);
   const [scanned, setScanned] = useState(false);
-  const qrDB = SQLite.openDatabase('qrDB');
+  const qrDB = SQLite.openDatabase('qrDB2');
 
   qrDB.transaction(tx => {
     tx.executeSql(
@@ -15,7 +15,7 @@ export default function ScannerScreen() {
   });
 
 add = (url) => {
-  if (url === null || url === "") {
+  if (url === null || !isString(url) || !validURL(url)) {
     alert("Unable to add this QR Code to database because there was no URL associated with it.")
   } else {
     qrDB.transaction(
@@ -27,6 +27,20 @@ add = (url) => {
     );
   }
 };
+
+function isString(val) {
+  return typeof val === 'string' || ((!!val && typeof val === 'object') && Object.prototype.toString.call(val) === '[object String]');
+}
+
+function validURL(str) {
+  var pattern = new RegExp('^(https?:\\/\\/)?'+ // protocol
+    '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+ // domain name
+    '((\\d{1,3}\\.){3}\\d{1,3}))'+ // OR ip (v4) address
+    '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+ // port and path
+    '(\\?[;&a-z\\d%_.~+=-]*)?'+ // query string
+    '(\\#[-a-z\\d_]*)?$','i'); // fragment locator
+  return !!pattern.test(str);
+}
   
   useEffect(() => {
     (async () => {
