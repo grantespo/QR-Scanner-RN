@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Text, SafeAreaView, StyleSheet, View, Button } from 'react-native';
+import { Text, SafeAreaView, StyleSheet, View, Button, Platform } from 'react-native';
 import { BarCodeScanner } from 'expo-barcode-scanner';
 import * as SQLite from 'expo-sqlite';
 import Colors from '../constants/Colors';
@@ -74,7 +74,7 @@ function validURL(str) {
   
       {scanned && (
         <View style={styles.scanAgainButtonContainer}>
-          <Button color={'white'} title={'Tap to Scan Again'} onPress={() => setScanned(false)} />
+          <Button color={Platform.OS === 'ios' ? 'white' : Colors.tabIconSelected} title={'Tap to Scan Again'} onPress={() => setScanned(false)} />
         </View>
       )}
     </SafeAreaView>
@@ -93,6 +93,7 @@ const styles = StyleSheet.create({
   },
   scanAgainButtonContainer: {
     backgroundColor: Colors.tabIconSelected,
+    color: Colors.tabIconSelected,
     height: 40,
   }
 });
